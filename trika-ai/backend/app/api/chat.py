@@ -73,7 +73,7 @@ async def generate_stream(
 async def chat(request: ChatRequest):
     """Send a chat message and get streaming response."""
     rag_engine = RAGEngine()
-    orchestrator = AgentOrchestrator()
+    orchestrator = AgentOrchestrator(model_name=request.model)
     
     if request.stream:
         return StreamingResponse(

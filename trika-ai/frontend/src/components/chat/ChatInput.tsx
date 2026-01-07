@@ -3,19 +3,20 @@
 import { useState, useRef, KeyboardEvent } from 'react';
 
 interface ChatInputProps {
-    onSend: (message: string, files?: File[]) => void;
+    onSend: (message: string, files?: File[], model?: string) => void;
     disabled?: boolean;
 }
 
 export default function ChatInput({ onSend, disabled }: ChatInputProps) {
     const [input, setInput] = useState('');
     const [files, setFiles] = useState<File[]>([]);
+    const [selectedModel, setSelectedModel] = useState('gpt-4-turbo-preview');
     const fileInputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const handleSubmit = () => {
         if (input.trim() || files.length > 0) {
-            onSend(input.trim(), files);
+            onSend(input.trim(), files, selectedModel);
             setInput('');
             setFiles([]);
         }
@@ -89,6 +90,17 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
                     className="flex-1 bg-transparent resize-none px-4 py-3 text-white placeholder-gray-500 focus:outline-none"
                     style={{ minHeight: '48px', maxHeight: '200px' }}
                 />
+
+                {/* Model Selector */}
+                <select
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                    value={selectedModel}
+                    className="bg-black/20 text-xs text-gray-400 rounded-lg px-2 py-1 outline-none border border-white/10 hover:border-white/20 transition-colors"
+                >
+                    <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5</option>
+                    <option value="gpt-4">GPT-4</option>
+                </select>
 
                 {/* Send button */}
                 <button

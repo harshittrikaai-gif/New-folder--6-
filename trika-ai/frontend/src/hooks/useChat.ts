@@ -21,7 +21,7 @@ export function useChat() {
     const [isLoading, setIsLoading] = useState(false);
     const [conversationId, setConversationId] = useState<string | null>(null);
 
-    const sendMessage = useCallback(async (content: string, files?: File[]) => {
+    const sendMessage = useCallback(async (content: string, files?: File[], model?: string) => {
         if (!content.trim() && (!files || files.length === 0)) return;
 
         let currentFiles = files || [];
@@ -63,6 +63,7 @@ export function useChat() {
                 body: JSON.stringify({
                     message: content || "Analyze the uploaded documents.",
                     conversation_id: conversationId,
+                    model: model,
                     stream: true,
                 }),
             });

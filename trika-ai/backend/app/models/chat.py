@@ -34,6 +34,7 @@ class ChatRequest(BaseModel):
     """Chat request from client."""
     message: str
     conversation_id: Optional[str] = None
+    model: Optional[str] = None
     attachments: List[FileAttachment] = []
     stream: bool = True
 
