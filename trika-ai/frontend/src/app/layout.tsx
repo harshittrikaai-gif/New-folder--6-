@@ -9,6 +9,14 @@ export const metadata: Metadata = {
     },
 };
 
+const Fonts = () => (
+    <>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Neue+Machina:wght@100..900&display=swap" rel="stylesheet" />
+    </>
+);
+
 export default function RootLayout({
     children,
 }: {
@@ -16,6 +24,9 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" className="dark">
+            <head>
+                <Fonts />
+            </head>
             <body className="antialiased">
                 <div className="min-h-screen flex flex-col">
                     {/* Navigation */}
@@ -29,7 +40,7 @@ export default function RootLayout({
                             </div>
 
                             <div className="flex items-center gap-6">
-                                <a href="/" className="text-gray-300 hover:text-white transition-colors">
+                                <a href="/chat" className="text-gray-300 hover:text-white transition-colors">
                                     Chat
                                 </a>
                                 <a href="/workflow" className="text-gray-300 hover:text-white transition-colors">

@@ -41,9 +41,13 @@ module.exports = {
                 'gradient-mesh': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             },
             animation: {
-                'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                'pulse-slow': 'pulseSlow 8s ease-in-out infinite',
                 'gradient': 'gradient 8s ease infinite',
-                'float': 'float 6s ease-in-out infinite',
+                'float': 'float 20s ease-in-out infinite',
+                'triangle-form': 'triangleForm 30s linear infinite',
+            },
+            fontFamily: {
+                machina: ['"Neue Machina"', 'sans-serif'],
             },
             keyframes: {
                 gradient: {
@@ -51,9 +55,17 @@ module.exports = {
                     '50%': { backgroundPosition: '100% 50%' },
                 },
                 float: {
-                    '0%, 100%': { transform: 'translateY(0px)' },
-                    '50%': { transform: 'translateY(-10px)' },
+                    '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                    '50%': { transform: 'translateY(-20px) rotate(1deg)' },
                 },
+                pulseSlow: {
+                    '0%, 100%': { opacity: '0.8' },
+                    '50%': { opacity: '1' },
+                },
+                triangleForm: {
+                    '0%': { opacity: '0', transform: 'scale(0) rotate(0deg)' },
+                    '100%': { opacity: '0.15', transform: 'scale(1) rotate(360deg)' },
+                }
             },
         },
     },
