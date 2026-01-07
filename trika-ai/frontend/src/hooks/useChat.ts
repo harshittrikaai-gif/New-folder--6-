@@ -22,13 +22,34 @@ export function useChat() {
     const [conversationId, setConversationId] = useState<string | null>(null);
 
     const sendMessage = useCallback(async (content: string, files?: File[]) => {
-        if (!content.trim()) return;
+        if (!content.trim() && (!files || files.length === 0)) return;
+
+        let currentFiles = files || [];
+
+        // Upload files first
+        if (currentFiles.length > 0) {
+            try {
+                const uploadPromises = currentFiles.map(async (file) => {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    await fetch('/api/files/upload', {
+                        method: 'POST',
+                        body: formData,
+                    });
+                });
+                await Promise.all(uploadPromises);
+            } catch (err) {
+                console.error("Error uploading files:", err);
+                // Continue sending message even if upload fails? 
+                // Better to notify user, but for now we proceed or maybe just log.
+            }
+        }
 
         // Add user message
         const userMessage: Message = {
             id: crypto.randomUUID(),
             role: 'user',
-            content,
+            content: content || (currentFiles.length > 0 ? `[Uploaded ${currentFiles.length} files]` : ''),
             timestamp: new Date(),
         };
         setMessages((prev) => [...prev, userMessage]);
@@ -40,7 +61,7 @@ export function useChat() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    message: content,
+                    message: content || "Analyze the uploaded documents.",
                     conversation_id: conversationId,
                     stream: true,
                 }),
