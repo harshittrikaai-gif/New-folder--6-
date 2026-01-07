@@ -22,10 +22,18 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openai_model: str = "gpt-4-turbo-preview"
     
+    # Vector Store
+    vector_store_provider: str = "chroma"  # chroma, pinecone
+    
     # ChromaDB
     chroma_host: str = "chromadb"
     chroma_port: int = 8000
     chroma_collection: str = "trika_documents"
+    
+    # Pinecone
+    pinecone_api_key: str = ""
+    pinecone_env: str = ""
+    pinecone_index: str = "trika-index"
     
     # CORS
     cors_origins: list[str] = ["http://localhost:3000", "http://frontend:3000"]

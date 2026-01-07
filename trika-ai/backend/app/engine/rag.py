@@ -30,25 +30,45 @@ class RAGEngine:
         self._vectorstore: Optional[Chroma] = None
     
     @property
-    def vectorstore(self) -> Chroma:
+    def vectorstore(self):
         """Get or create vector store connection."""
         if self._vectorstore is None:
-            import chromadb
-            from chromadb.config import Settings as ChromaSettings
+            provider = settings.vector_store_provider.lower()
             
-            client = chromadb.HttpClient(
-                host=settings.chroma_host,
-                port=str(settings.chroma_port),
-                settings=ChromaSettings(
-                    anonymized_telemetry=False
+            if provider == "pinecone":
+                from langchain_pinecone import PineconeVectorStore
+                
+                self._vectorstore = PineconeVectorStore(
+                    index_name=settings.pinecone_index,
+                    embedding=self.embeddings,
+                    pinecone_api_key=settings.pinecone_api_key
                 )
-            )
-            
-            self._vectorstore = Chroma(
-                client=client,
-                collection_name=settings.chroma_collection,
-                embedding_function=self.embeddings,
-            )
+                
+            elif provider == "sqlite" or provider == "local":
+                # Uses ChromaDB's local SQLite mode
+                self._vectorstore = Chroma(
+                    collection_name=settings.chroma_collection,
+                    embedding_function=self.embeddings,
+                    persist_directory="/app/chroma_data_local" # Local SQLite file
+                )
+                
+            else: # Default to Chroma Server
+                import chromadb
+                from chromadb.config import Settings as ChromaSettings
+                
+                client = chromadb.HttpClient(
+                    host=settings.chroma_host,
+                    port=str(settings.chroma_port),
+                    settings=ChromaSettings(
+                        anonymized_telemetry=False
+                    )
+                )
+                
+                self._vectorstore = Chroma(
+                    client=client,
+                    collection_name=settings.chroma_collection,
+                    embedding_function=self.embeddings,
+                )
         return self._vectorstore
     
     def _get_loader(self, file_path: str):

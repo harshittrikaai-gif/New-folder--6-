@@ -17,6 +17,17 @@ Trika AI is a full-stack RAG (Retrieval Augmented Generation) and Multi-Agent or
    # Add your OPENAI_API_KEY to .env
    ```
 
+   **Vector Database Configuration (.env):**
+   ```env
+   # Provider: chroma (default), pinecone, or sqlite (local)
+   VECTOR_STORE_PROVIDER=chroma
+   
+   # If using Pinecone:
+   PINECONE_API_KEY=your-key
+   PINECONE_ENV=your-env
+   PINECONE_INDEX=trika-index
+   ```
+
 2. **Run with Docker**
    ```bash
    docker-compose up --build

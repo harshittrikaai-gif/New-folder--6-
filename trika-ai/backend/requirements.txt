@@ -15,7 +15,10 @@ langgraph==0.0.20
 openai==1.10.0
 
 # Vector Store
+# Vector Store
 chromadb==0.4.22
+pinecone-client==3.1.0
+langchain-pinecone==0.0.3
 
 # Async & Utils
 httpx==0.26.0
