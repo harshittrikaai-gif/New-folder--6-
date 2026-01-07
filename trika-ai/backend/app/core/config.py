@@ -21,7 +21,18 @@ class Settings(BaseSettings):
     # OpenAI
     openai_api_key: str = ""
     openai_model: str = "gpt-4-turbo-preview"
-    supported_models: list[str] = ["gpt-4-turbo-preview", "gpt-3.5-turbo", "gpt-4"]
+    
+    # Anthropic
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-3-sonnet-20240229"
+    
+    supported_models: list[str] = [
+        "gpt-4-turbo-preview", 
+        "gpt-3.5-turbo", 
+        "gpt-4",
+        "claude-3-opus-20240229",
+        "claude-3-sonnet-20240229"
+    ]
     
     # Vector Store
     vector_store_provider: str = "chroma"  # chroma, pinecone

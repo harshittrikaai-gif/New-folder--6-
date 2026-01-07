@@ -24,11 +24,21 @@ class AgentOrchestrator:
     
     def __init__(self, model_name: str = None):
         self.model_name = model_name or settings.openai_model
-        self.llm = ChatOpenAI(
-            model=self.model_name,
-            api_key=settings.openai_api_key,
-            streaming=True
-        )
+        
+        if "claude" in self.model_name:
+            from langchain_anthropic import ChatAnthropic
+            self.llm = ChatAnthropic(
+                model_name=self.model_name,
+                anthropic_api_key=settings.anthropic_api_key,
+                streaming=True
+            )
+        else:
+            self.llm = ChatOpenAI(
+                model=self.model_name,
+                api_key=settings.openai_api_key,
+                streaming=True
+            )
+        
         self.graph = self._build_graph()
     
     def _build_graph(self) -> StateGraph:

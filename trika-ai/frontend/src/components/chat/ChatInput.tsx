@@ -97,9 +97,15 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
                     value={selectedModel}
                     className="bg-black/20 text-xs text-gray-400 rounded-lg px-2 py-1 outline-none border border-white/10 hover:border-white/20 transition-colors"
                 >
-                    <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
-                    <option value="gpt-3.5-turbo">GPT-3.5</option>
-                    <option value="gpt-4">GPT-4</option>
+                    <optgroup label="OpenAI">
+                        <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
+                        <option value="gpt-3.5-turbo">GPT-3.5</option>
+                        <option value="gpt-4">GPT-4</option>
+                    </optgroup>
+                    <optgroup label="Anthropic">
+                        <option value="claude-3-opus-20240229">Claude 3 Opus</option>
+                        <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+                    </optgroup>
                 </select>
 
                 {/* Send button */}
