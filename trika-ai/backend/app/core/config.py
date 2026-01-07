@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     ]
     
     # Vector Store
-    vector_store_provider: str = "chroma"  # chroma, pinecone
+    vector_store_provider: str = "pinecone"  # chroma, pinecone
     
     # ChromaDB
     chroma_host: str = "chromadb"

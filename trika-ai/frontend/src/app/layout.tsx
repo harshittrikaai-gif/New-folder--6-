@@ -43,6 +43,9 @@ export default function RootLayout({
                                 <a href="/chat" className="text-gray-300 hover:text-white transition-colors">
                                     Chat
                                 </a>
+                                <a href="/features" className="text-gray-300 hover:text-white transition-colors">
+                                    Features
+                                </a>
                                 <a href="/workflow" className="text-gray-300 hover:text-white transition-colors">
                                     Workflows
                                 </a>
