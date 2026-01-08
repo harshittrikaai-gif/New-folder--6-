@@ -15,6 +15,8 @@ async def lifespan(app: FastAPI):
     """Application lifespan events."""
     # Startup
     print(f"🚀 Starting {settings.app_name}")
+    from app.db.database import engine, Base
+    Base.metadata.create_all(bind=engine)
     yield
     # Shutdown
     print(f"👋 Shutting down {settings.app_name}")
