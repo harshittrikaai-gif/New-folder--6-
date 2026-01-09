@@ -68,32 +68,61 @@ class AgentOrchestrator:
     async def _router_agent(self, state: AgentState) -> AgentState:
         """Route to appropriate agent based on query."""
         messages = state["messages"]
-        context = state.get("context", "")
+        last_message = messages[-1]
         
-        # Simple routing logic - if context exists, go to researcher
-        if context:
+        # If user asks to "search" or "find", route to researcher
+        if isinstance(last_message, HumanMessage):
+            content = last_message.content.lower()
+            if "search" in content or "find" in content or "look up" in content or "latest" in content:
+                return {"current_agent": "research"}
+        
+        # If context exists (RAG), also route to researcher (or a rag-processor)
+        if state.get("context"):
             return {"current_agent": "research"}
+            
         return {"current_agent": "respond"}
     
     def _route_decision(self, state: AgentState) -> str:
         """Determine next agent."""
-        if state.get("context"):
-            return "research"
-        return "respond"
+        return state["current_agent"]
     
     async def _researcher_agent(self, state: AgentState) -> AgentState:
-        """Research agent that processes context."""
-        context = state.get("context", "")
+        """Research agent that uses tools."""
+        from ..tools.search import search_web
         
+        messages = state["messages"]
+        last_message = messages[-1]
+        content = last_message.content if hasattr(last_message, "content") else str(last_message)
+        
+        # If explicitly searching
+        if "search" in content.lower() or "find" in content.lower():
+            # Extract query (simple heuristic for now, ideal would be to use LLM to extract)
+            search_query = content
+            try:
+                search_result = search_web.invoke(search_query)
+                research_summary = f"Search Results for '{search_query}':\n\n{search_result}"
+                
+                return {
+                    "messages": [SystemMessage(content=research_summary)],
+                    "current_agent": "researcher"
+                }
+            except Exception as e:
+                return {
+                    "messages": [SystemMessage(content=f"Search failed: {str(e)}")],
+                    "current_agent": "researcher"
+                }
+        
+        # Standard RAG processing
+        context = state.get("context", "")
         system_prompt = """You are a research assistant. Analyze the provided context 
         and extract key information relevant to the user's question. Be concise and factual."""
         
-        messages = [
+        rag_messages = [
             SystemMessage(content=system_prompt),
             HumanMessage(content=f"Context:\n{context}\n\nExtract key insights.")
         ]
         
-        response = await self.llm.ainvoke(messages)
+        response = await self.llm.ainvoke(rag_messages)
         
         return {
             "messages": [response],
@@ -106,16 +135,17 @@ class AgentOrchestrator:
         
         system_prompt = """You are Trika, a helpful AI assistant. 
         Provide clear, accurate, and helpful responses. 
-        If context or research was provided, use it to inform your response."""
+        If context or search results were provided, use them to inform your response.
+        Cite your sources if available."""
         
         # Build message history
         formatted_messages = [SystemMessage(content=system_prompt)]
+        
+        # We need to flatten the messages list which might contain different types
         for msg in messages:
             if isinstance(msg, dict):
-                if msg["role"] == "user":
-                    formatted_messages.append(HumanMessage(content=msg["content"]))
-                elif msg["role"] == "assistant":
-                    formatted_messages.append(AIMessage(content=msg["content"]))
+                # Handle dict messages if any
+                pass 
             else:
                 formatted_messages.append(msg)
         

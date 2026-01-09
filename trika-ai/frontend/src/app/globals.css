@@ -117,3 +117,15 @@ body {
   background-size: 300px 300px, 400px 400px, 350px 350px;
   animation: triangleForm 30s linear infinite;
 }
+
+@keyframes triangleForm {
+  0%, 100% {
+    background-position: 0% 0%, 100% 100%, 50% 50%;
+  }
+  33% {
+    background-position: 30% 70%, 70% 30%, 80% 20%;
+  }
+  66% {
+    background-position: 70% 30%, 30% 70%, 20% 80%;
+  }
+}
