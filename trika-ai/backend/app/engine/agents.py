@@ -132,42 +132,37 @@ class AgentOrchestrator:
         context: str = "",
         history: List[Dict[str, str]] = None
     ) -> AsyncGenerator[str, None]:
-        """Stream response tokens."""
+        """Stream response using the agent graph."""
         history = history or []
         
-        system_prompt = """You are Trika, a helpful AI assistant. 
-        Provide clear, accurate, and helpful responses."""
+        # Initial state
+        initial_state = {
+            "messages": [HumanMessage(content=message)],
+            "context": context,
+            "current_agent": "router",
+            "output": ""
+        }
         
-        messages = [SystemMessage(content=system_prompt)]
+        # Add history to messages if needed (simplified for graph state)
+        # Note: In a real complex graph, we might want to load full history
         
-        # Add context if available
-        if context:
-            messages.append(SystemMessage(
-                content=f"Use this context to help answer:\n{context}"
-            ))
-        
-        # Add history
-        for msg in history:
-            if msg["role"] == "user":
-                messages.append(HumanMessage(content=msg["content"]))
-            elif msg["role"] == "assistant":
-                messages.append(AIMessage(content=msg["content"]))
-        
-        # Add current message
-        messages.append(HumanMessage(content=message))
-        
-        # Stream response
-        async for chunk in self.llm.astream(messages):
-            if chunk.content:
-                yield chunk.content
-    
+        # Execute graph
+        async for event in self.graph.astream_events(initial_state, version="v1"):
+            kind = event["event"]
+            
+            # Stream tokens from the LLM
+            if kind == "on_chat_model_stream":
+                content = event["data"]["chunk"].content
+                if content:
+                    yield content
+                    
     async def generate_response(
         self,
         message: str,
         context: str = "",
         history: List[Dict[str, str]] = None
     ) -> str:
-        """Generate a complete response (non-streaming)."""
+        """Generate a complete response using the agent graph."""
         full_response = ""
         async for chunk in self.stream_response(message, context, history):
             full_response += chunk
