@@ -122,6 +122,48 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
                     />
 
                     <div className="flex flex-col gap-1 pb-1">
+                        {/* Voice transcribe button */}
+                        <button
+                            onClick={async () => {
+                                if (disabled) return;
+                                try {
+                                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                                    const mediaRecorder = new MediaRecorder(stream);
+                                    const audioChunks: Blob[] = [];
+
+                                    mediaRecorder.ondataavailable = (event) => {
+                                        audioChunks.push(event.data);
+                                    };
+
+                                    mediaRecorder.onstop = async () => {
+                                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                                        const formData = new FormData();
+                                        formData.append('file', audioBlob, 'voice.wav');
+
+                                        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+                                        const response = await fetch(`${API_URL}/api/v1/chat/voice`, {
+                                            method: 'POST',
+                                            body: formData,
+                                        });
+                                        const data = await response.json();
+                                        if (data.text) setInput(prev => prev + ' ' + data.text);
+                                        stream.getTracks().forEach(track => track.stop());
+                                    };
+
+                                    mediaRecorder.start();
+                                    setTimeout(() => mediaRecorder.stop(), 3000); // Record for 3 seconds for demo
+                                } catch (err) {
+                                    console.error('Voice error:', err);
+                                }
+                            }}
+                            className="p-3 mb-0.5 rounded-xl text-gray-400 hover:text-primary-400 hover:bg-white/10 transition-colors"
+                            title="Voice Input (3s)"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                        </button>
+
                         {/* Model Selector - Compact */}
                         <div className="relative">
                             <select

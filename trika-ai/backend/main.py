@@ -5,9 +5,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.api import chat, workflow, files
+from app.api import chat, workflow, files, auth
+from app.api import workflow_ws
+
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 settings = get_settings()
+limiter = Limiter(key_func=get_remote_address)
 
 
 @asynccontextmanager
@@ -28,6 +34,8 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS middleware
 app.add_middleware(
@@ -42,9 +50,12 @@ app.add_middleware(
 app.include_router(chat.router, prefix=settings.api_prefix)
 app.include_router(workflow.router, prefix=settings.api_prefix)
 app.include_router(files.router, prefix=settings.api_prefix)
+app.include_router(auth.router, prefix=settings.api_prefix)
+app.include_router(workflow_ws.router)  # WebSocket router (no prefix)
 
 
 @app.get("/")
+@limiter.limit("100/minute")
 async def root():
     """Root endpoint."""
     return {
@@ -58,3 +69,4 @@ async def root():
 async def health():
     """Health check endpoint."""
     return {"status": "healthy"}
+

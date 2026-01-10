@@ -1,5 +1,5 @@
 """Workflow execution engine."""
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Callable, Optional
 from collections import defaultdict
 
 from ..models.workflow import Workflow, WorkflowNode, NodeType
@@ -112,3 +112,55 @@ class WorkflowExecutor:
             "output": final_output,
             "node_outputs": self.node_outputs
         }
+    
+    async def execute_with_progress(
+        self,
+        workflow: Workflow,
+        input_data: Dict[str, Any],
+        callback: Optional[Callable[[str, Dict[str, Any]], None]] = None
+    ) -> Dict[str, Any]:
+        """Execute workflow with progress callbacks."""
+        self.node_outputs = {}
+        
+        # Get execution order
+        execution_order = self._topological_sort(workflow)
+        
+        # Map node IDs to nodes
+        node_map = {node.id: node for node in workflow.nodes}
+        
+        # Execute nodes in order
+        final_output = {}
+        
+        for node_id in execution_order:
+            node = node_map.get(node_id)
+            if not node:
+                continue
+            
+            # Get node input
+            node_input = self._get_node_input(node, workflow, input_data)
+            
+            # Create and execute node
+            node_instance = create_node(
+                node.config.type.value,
+                node.config.model_dump()
+            )
+            
+            output = await node_instance.execute(node_input)
+            self.node_outputs[node_id] = output
+            
+            # Call progress callback if provided
+            if callback:
+                try:
+                    await callback(node_id, output) if hasattr(callback, '__await__') else callback(node_id, output)
+                except Exception as e:
+                    print(f"Error in progress callback: {e}")
+            
+            # If this is an output node, capture as final output
+            if node.config.type == NodeType.OUTPUT:
+                final_output = output
+        
+        return {
+            "output": final_output,
+            "node_outputs": self.node_outputs
+        }
+

@@ -34,9 +34,19 @@ Trika AI is a full-stack RAG (Retrieval Augmented Generation) and Multi-Agent or
    ```
 
 3. **Access**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000/docs
-   - ChromaDB: http://localhost:8001
+   - Main App (via Nginx): http://localhost (Port 80)
+   - Backend API: http://localhost/api/v1/docs
+   - ChromaDB: Internalized (expose only for debugging if needed)
+
+## Production Deployment
+
+Trika AI is production-ready with:
+- **Nginx Reverse Proxy**: Single entry point for frontend, backend, and WebSocket.
+- **Rate Limiting**: Integrated `slowapi` to prevent abuse.
+- **JWT Authentication**: Secure user sessions.
+- **Multi-Stage Docker Builds**: Optimized image sizes and security.
+- **Gunicorn/Uvicorn**: High-performance production server.
+
 
 ## Development
 

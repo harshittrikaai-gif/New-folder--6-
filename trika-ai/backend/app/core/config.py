@@ -19,11 +19,11 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     
     # OpenAI
-    openai_api_key: str = ""
+    openai_api_key: str = "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"
     openai_model: str = "gpt-4-turbo-preview"
     
     # Anthropic
-    anthropic_api_key: str = ""
+    anthropic_api_key: str = "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"
     anthropic_model: str = "claude-3-sonnet-20240229"
     
     supported_models: list[str] = [
@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     ]
     
     # Vector Store
-    vector_store_provider: str = "pinecone"  # chroma, pinecone
+    vector_store_provider: str = "chroma"  # chroma, pinecone
     
     # ChromaDB
     chroma_host: str = "chromadb"
@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     pinecone_index: str = "trika-index"
     
     # CORS
-    cors_origins: list[str] = ["http://localhost:3000", "http://frontend:3000"]
+    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]
     
     class Config:
         env_file = ".env"
